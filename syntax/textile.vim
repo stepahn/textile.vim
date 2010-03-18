@@ -14,7 +14,6 @@
 " @(#) $Id$
 
 let textile_css=1
-let textile_html=1
 
 if version < 600
     syntax clear
@@ -34,14 +33,16 @@ if exists("textile_css")
     unlet b:current_syntax
 endif
 
-" HTML highlighting.
-if exists("textile_html")
-    syn include @htmlTop syntax/html.vim 
-    syn sync clear
-    unlet b:current_syntax
-endif
+" YAML Metadata blocks (Webby)
+syn include @yamlMetadata syntax/yaml.vim 
+unlet b:current_syntax
 
-syn region textileHtml start="<\s*[-a-zA-Z0-9]\+" end="</\s*[-a-zA-Z0-9]\+>" end="/>" keepend contains=@htmlTop
+" HTML with ERB
+let b:eruby_subtype = 'html'
+runtime! syntax/eruby.vim
+unlet b:current_syntax
+
+syn region embeddedYaml start="^---$" end="^---\n" keepend contains=@yamlMetadata
 
 syn region textileCode start="<code>"ms=s+6 end="</code>" contains=@NoSpell
 syn region textilePreformatted start="<pre\>" end="</pre>" keepend contains=textileCode,@htmlTop
@@ -91,7 +92,7 @@ syn match txtImage /![^!]\+!\%(:\(\([^:\/?# ]\+\):\)\?\(\/\/\([^\/?# ]*\)\)\?\([
 syn cluster txtInlineElement contains=txtEmphasis,txtBold,txtCite,txtDeleted,txtInserted,txtSuper,txtSub,txtSpan,txtLink,txtCode
 
 syn region textileBlockTag start="^\(bq\|bc\|notextile\|pre\|h[1-6]\|fn\d+\|p\)" end="\. "me=e-2 keepend contains=textileAlignment,textileCss,textileBlockName,@NoSpell
-syn region textileBlockContent start="\. "ms=s+2 end="$" contained contains=@txtInlineElement,textileHtml keepend transparent
+syn region textileBlockContent start="\. "ms=s+2 end="$" contained contains=@txtInlineElement keepend transparent
 
 " block names
 syn keyword textileBlockName contained table bq fn p
